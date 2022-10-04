@@ -19,4 +19,10 @@
 
   font-size: 10rem;
   font-weight: 700;
+
+  cursor: pointer;
+}
+
+.board-cell-filled {
+  cursor: default;
 }

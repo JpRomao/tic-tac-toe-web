@@ -4,4 +4,7 @@ export interface IAi {
   score: number;
   difficulty: "easy" | "hard";
   playerTurn: 1 | 2;
+
+  addScore(): void;
+  resetScore(): void;
 }

@@ -1,10 +1,18 @@
 class BasicAi {
-  constructor() {
-    this.id = "BasicAi";
-    this.name = "AI";
+  constructor(ai) {
+    this.id = ai.id;
+    this.name = ai.name;
     this.score = 0;
     this.difficulty = "easy";
-    this.playerTurn = 2;
+    this.playerTurn = ai.playerTurn || 2;
+  }
+
+  addScore() {
+    this.score++;
+  }
+
+  resetScore() {
+    this.score = 0;
   }
 
   getAiMove(board) {

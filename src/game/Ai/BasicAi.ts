@@ -14,6 +14,14 @@ class BasicAi implements IAi {
     this.difficulty = "easy";
     this.playerTurn = 2;
   }
+
+  addScore(): void {
+    this.score++;
+  }
+
+  resetScore(): void {
+    this.score = 0;
+  }
 }
 
 export { BasicAi };

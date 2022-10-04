@@ -14,6 +14,13 @@ class HardAi implements IAi {
     this.difficulty = "hard";
     this.playerTurn = 2;
   }
+  resetScore(): void {
+    this.score = 0;
+  }
+
+  addScore(): void {
+    this.score++;
+  }
 }
 
 export { HardAi };

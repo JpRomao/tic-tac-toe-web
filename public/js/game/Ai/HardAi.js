@@ -4,43 +4,47 @@ class HardAi {
     this.name = ai.name;
     this.score = 0;
     this.difficulty = "hard";
-    this.playerTurn = 2;
+    this.playerTurn = ai.playerTurn || 2;
+  }
+
+  addScore() {
+    this.score++;
+  }
+
+  resetScore() {
+    this.score = 0;
   }
 
   getAiMove(board) {
     const move = this.getBestMove(board);
-
-    console.log("move", move);
-
+    console.log("ai move", move);
     return move;
   }
 
   getBestMove(board) {
-    const availableMoves = board.availablePositions();
-
     let bestScore = -Infinity;
-    let bestMove = 0;
+    let move;
 
-    for (let i = 0; i < availableMoves.length; i++) {
-      const move = availableMoves[i];
+    for (let i = 0; i < 9; i++) {
+      if (board.board[i] === 0) {
+        board.board[i] = this.playerTurn;
 
-      board.setBoard(move, this.playerTurn);
+        let score = this.minimax(board, 0, false);
 
-      const score = this.minimax(board, false);
+        board.board[i] = 0;
 
-      board.setBoard(move, 0);
-
-      if (score > bestScore) {
-        bestScore = score;
-        bestMove = move;
+        if (score > bestScore) {
+          bestScore = score;
+          move = i;
+        }
       }
     }
 
-    return bestMove;
+    return move;
   }
 
-  minimax(board, isMaximizing) {
-    const result = board.checkWinner();
+  minimax(newBoard, depth, isMaximizing) {
+    const result = newBoard.checkWinner();
 
     if (result === this.playerTurn) {
       return 10;
@@ -53,36 +57,32 @@ class HardAi {
     if (isMaximizing) {
       let bestScore = -Infinity;
 
-      const availableMoves = board.availablePositions();
+      for (let i = 0; i < 9; i++) {
+        if (newBoard.board[i] === 0) {
+          newBoard.board[i] = this.playerTurn;
 
-      for (let i = 0; i < availableMoves.length; i++) {
-        const move = availableMoves[i];
+          let score = this.minimax(newBoard, depth + 1, false);
 
-        board.setBoard(move, this.playerTurn);
+          newBoard.board[i] = 0;
 
-        const score = this.minimax(board, false);
-
-        board.setBoard(move, 0);
-
-        bestScore = Math.max(score, bestScore);
+          bestScore = Math.max(score, bestScore);
+        }
       }
 
       return bestScore;
     } else {
       let bestScore = Infinity;
 
-      const availableMoves = board.availablePositions();
+      for (let i = 0; i < 9; i++) {
+        if (newBoard.board[i] === 0) {
+          newBoard.board[i] = this.playerTurn === 1 ? 2 : 1;
 
-      for (let i = 0; i < availableMoves.length; i++) {
-        const move = availableMoves[i];
+          let score = this.minimax(newBoard, depth + 1, true);
 
-        board.setBoard(move, this.playerTurn);
+          newBoard.board[i] = 0;
 
-        const score = this.minimax(board, false);
-
-        board.setBoard(move, 0);
-
-        bestScore = Math.min(score, bestScore);
+          bestScore = Math.min(score, bestScore);
+        }
       }
 
       return bestScore;

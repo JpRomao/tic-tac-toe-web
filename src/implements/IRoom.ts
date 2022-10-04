@@ -1,5 +1,5 @@
-import { BasicAi } from "game/Ai/BasicAi";
-import { HardAi } from "game/Ai/HardAi";
+import { BasicAi } from "../game/Ai/BasicAi";
+import { HardAi } from "../game/Ai/HardAi";
 import { Board } from "../game/Board";
 import { Player } from "../game/Player";
 
@@ -11,6 +11,8 @@ export interface IRoom {
     2: Player;
   };
   playerTurn: 1 | 2;
+  turns: number;
+  draws: number;
   winner: 0 | 1 | 2 | 3;
   board: Board;
   isPrivate: boolean;

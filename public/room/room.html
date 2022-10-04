@@ -29,12 +29,22 @@
       <div id="playersConteiner">
         <div class="player"></div>
 
+        <div id="draws">
+          <p>Empates</p>
+          <p class="score">0</p>
+        </div>
+
         <div class="player"></div>
       </div>
     </header>
 
     <main>
       <div id="board"></div>
+
+      <div id="buttons">
+        <button id="resetGame">Recomeçar</button>
+        <button id="leaveRoom">Sair da sala</button>
+      </div>
     </main>
 
     <script src="/socket.io.js"></script>

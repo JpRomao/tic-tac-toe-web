@@ -2,52 +2,36 @@ import {
   clearSessionStorage,
   getSessionStorage,
   removeSessionStorage,
-  setSessionStorage,
 } from "./utils/sessionStorage.js";
-import { Room } from "./game/Room/room.js";
+import { Room } from "./game/Room/Room.js";
 
-socket.on("roomData", (room) => {
-  setSessionStorage("room", room);
+const player = getSessionStorage("player");
+
+let room = getSessionStorage("room");
+
+socket.on("roomData", (newRoom) => {
+  room = newRoom;
 
   document.querySelector("#roomHeader h1").innerHTML = room.name;
 
   document.title = room.name;
 
-  const board = document.getElementById("board");
+  renderBoard(room.board.board);
 
-  board.innerHTML = "";
-
-  for (let i = 0; i < 9; i++) {
-    board.innerHTML += `
-      <div class="board-cell">${
-        room.board.board[i] === 1 ? "X" : room.board.board[i] === 2 ? "O" : ""
-      }</div>
-    `;
-  }
-
-  const boardCells = document.querySelectorAll(".board-cell");
-
-  boardCells.forEach((cell, index) => {
-    cell.addEventListener("click", () => {
-      if (room.board.board[index] !== 0) return;
-
-      if (room.isAiActive) {
-        play();
-
-        return;
-      }
-
-      socket.emit("play", room.id, index, player);
-    });
-  });
+  renderPlayerInfos();
 });
 
-socket.on("played", (room) => {});
+socket.on("played", (newRoom) => {
+  console.log("played", newRoom);
+});
+
+socket.on("roomLeaved", () => {
+  removeSessionStorage("room");
+
+  window.location.href = "/lobby";
+});
 
 window.onload = () => {
-  const room = getSessionStorage("room");
-  const player = getSessionStorage("player");
-
   if (!player || !player.id) {
     clearSessionStorage();
 
@@ -64,13 +48,23 @@ window.onload = () => {
     return;
   }
 
+  const resetGameButton = document.getElementById("resetGame");
+
+  resetGameButton.addEventListener("click", resetGame);
+
+  const leaveRoomButton = document.getElementById("leaveRoom");
+
+  leaveRoomButton.addEventListener("click", leaveRoom);
+
   const roomId = window.location.pathname.split("/")[2];
 
   socket.emit("getRoomData", roomId);
 };
 
 function play(index) {
-  const room = getSessionStorage("room");
+  if (index < 0 || index > 8) {
+    return;
+  }
 
   if (!room || !room.id) {
     const roomId = window.location.pathname.split("/")[2];
@@ -82,13 +76,111 @@ function play(index) {
 
   const offRoom = new Room(room);
 
-  if (offRoom.playerTurn === offRoom.ai.playerTurn) {
-    const aiMove = offRoom.ai.getAiMove(offRoom.board);
-
-    offRoom.board.board[aiMove] = offRoom.ai.playerTurn;
-  } else {
-    offRoom.board.board[index] = offRoom.players[1].playerTurn;
+  if (offRoom.board.board[index] !== 0) {
+    return;
   }
 
-  console.log(aiMove);
+  offRoom.play(index);
+
+  renderBoard(offRoom.board.board);
+
+  room = new Room(offRoom);
+
+  renderPlayerInfos();
+}
+
+function renderBoard(board) {
+  const boardDiv = document.getElementById("board");
+
+  boardDiv.innerHTML = "";
+
+  for (let i = 0; i < 9; i++) {
+    boardDiv.innerHTML += `
+      <div class="${
+        room.isRunning ? "board-cell" : "board-cell board-cell-filled"
+      }">${board[i] === 1 ? "X" : board[i] === 2 ? "O" : ""}</div>
+    `;
+  }
+
+  const boardCells = document.querySelectorAll(".board-cell");
+
+  boardCells.forEach((cell, index) => {
+    cell.addEventListener("click", () => {
+      if (room.isAiActive) {
+        play(index);
+
+        return;
+      }
+
+      socket.emit("play", room.id, index, player);
+    });
+
+    if (room.board.board[index] !== 0) {
+      cell.classList.add("board-cell-filled");
+
+      return;
+    }
+  });
+}
+
+function renderPlayerInfos() {
+  const playerInfo = (player) => {
+    return `
+      <p>${player.name}</p>
+      <p class="score">${player.score}</p>
+    `;
+  };
+
+  const playersInfos = document.getElementsByClassName("player");
+
+  playersInfos[0].innerHTML = playerInfo(room.players[1]);
+
+  if (room.players[2].id) {
+    playersInfos[1].innerHTML = playerInfo(room.players[2]);
+  } else {
+    playersInfos[1].innerHTML = playerInfo(room.ai);
+  }
+
+  const drawsScore = document.querySelector("#draws .score");
+
+  drawsScore.innerHTML = room.draws;
+
+  return `
+    <p>${player.name}</p>
+    <p class="score">${player.score}</p>
+  `;
+}
+
+function resetGame() {
+  if (!room || !room.id) {
+    const roomId = window.location.pathname.split("/")[2];
+
+    socket.emit("getRoomData", roomId);
+
+    return;
+  }
+
+  if (room.isAiActive) {
+    room.resetGame();
+
+    renderBoard(room.board.board);
+
+    renderPlayerInfos();
+
+    return;
+  }
+
+  socket.emit("resetGame", room.id, player);
+}
+
+function leaveRoom() {
+  if (!room || !room.id) {
+    const roomId = window.location.pathname.split("/")[2];
+
+    socket.emit("getRoomData", roomId);
+
+    return;
+  }
+
+  socket.emit("leaveRoom", room.id, player);
 }

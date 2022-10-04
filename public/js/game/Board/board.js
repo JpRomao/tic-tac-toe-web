@@ -43,10 +43,6 @@ class Board {
       [2, 4, 6],
     ];
 
-    if (this.isBoardFull()) {
-      return 3;
-    }
-
     for (let i = 0; i < winningLines.length; i++) {
       const [a, b, c] = winningLines[i];
 
@@ -59,13 +55,15 @@ class Board {
       }
     }
 
+    if (this.availablePositions().length === 0) {
+      return 3;
+    }
+
     return 0;
   }
 
   setBoard(position, playerValue) {
-    if (this.isPositionAvailable(position)) {
-      this.board[position] = playerValue;
-    }
+    this.board[position] = playerValue;
   }
 
   getBoard() {

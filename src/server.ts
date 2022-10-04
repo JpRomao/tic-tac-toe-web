@@ -4,7 +4,7 @@ import http from "http";
 
 import router from "./routes";
 import game from "./game/Game";
-import { Player } from "game/Player";
+import { Player } from "./game/Player";
 
 const app = express();
 
