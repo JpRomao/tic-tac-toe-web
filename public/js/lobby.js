@@ -20,12 +20,20 @@ socket.on("rooms", (rooms) => {
           <span>Sala-${room.id}</span>
         </div>
 
-        <div class="room-button">
-          <button class="btn btn-primary" onclick="joinRoom('${room.id}')">Entrar</button>
+        <div>
+          <button class="room-button">Entrar</button>
         </div>
       </div>
     `;
   });
+
+  const joinRoomButtons = document.getElementsByClassName("room-button");
+
+  for (let i = 0; i < joinRoomButtons.length; i++) {
+    joinRoomButtons[i].addEventListener("click", () => {
+      console.log("oi");
+    });
+  }
 });
 
 socket.on("roomCreated", (room) => {
@@ -40,6 +48,20 @@ socket.on("roomCreated", (room) => {
   }
 
   setSessionStorage("room", room);
+
+  window.location.href = `/room/${room.id}`;
+});
+
+socket.on("roomJoined", (room) => {
+  if (!room) {
+    return;
+  }
+
+  if ("code" in room) {
+    alert(room.message);
+
+    return;
+  }
 
   window.location.href = `/room/${room.id}`;
 });

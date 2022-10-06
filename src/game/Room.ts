@@ -62,6 +62,8 @@ class Room implements IRoom {
         playerTurn: 2,
       } as Player;
     }
+
+    console.log("room players -> ", this.players);
   }
 }
 

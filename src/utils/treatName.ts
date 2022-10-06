@@ -1,4 +1,4 @@
-export function treatName(name) {
+export function treatName(name: string) {
   name = name.trim();
 
   name = nameWithCapitalLetters(name);
@@ -8,13 +8,13 @@ export function treatName(name) {
   return name;
 }
 
-function nameWithCapitalLetters(name) {
+function nameWithCapitalLetters(name: string) {
   return name
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
 
-function removeSpecialCharacters(name) {
+function removeSpecialCharacters(name: string) {
   return name.replace(/[^a-zA-ZÀ-ÿ0-9\s-~´]/g, "");
 }
